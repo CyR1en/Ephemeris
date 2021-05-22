@@ -1,0 +1,7 @@
+PyQt5==5.15.4
+google-api-python-client==1.8.0
+google-auth-httplib2==0.1.0
+google-auth-oauthlib==0.4.4
+PyQt5==5.15.4
+QDarkStyle==3.0.2
+fbs==0.9.4
