@@ -1,19 +1,20 @@
 import abc
 import datetime
 
+from PyQt5.QtCore import QTimer, Qt, QPoint
+from PyQt5.QtGui import QIcon, QFont, QPainter
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QGroupBox, QLineEdit, QAbstractButton
+
 import service_models
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QGroupBox, QLineEdit, QLabel, QVBoxLayout, QPushButton, QHBoxLayout
 from util import get_QPixmap
 
 
 class EphemerisGroupBox(QGroupBox):
-    def __init__(self, dia, button_label):
+    def __init__(self, dia, button_label='Button'):
         super().__init__()
         self.dia = dia
-        self.bottom_btn = QPushButton(button_label)
-        self.bottom_btn.pressed.connect(self.button_click)
+        self.button_label = button_label
+        self.button_icon = None
 
     @abc.abstractmethod
     def button_click(self):
@@ -23,15 +24,26 @@ class EphemerisGroupBox(QGroupBox):
 class LoginGroupBox(EphemerisGroupBox):
     def __init__(self, dia):
         super().__init__(dia, ' Login with Google')
+        icon = QIcon(get_QPixmap(self.dia.app, 'google.png'))
+        self.button_icon = icon
         layout = QVBoxLayout()
-        layout.addWidget(self.bottom_btn)
-        self.bottom_btn.setIcon(QIcon(get_QPixmap(self.dia.app_ctx, 'google.png')))
+        layout.addWidget(self._make_logo())
         self.setLayout(layout)
+        self.setStyleSheet('border:none')
+
+    def _make_logo(self):
+        logo = QLabel(self)
+        logo.setAlignment(Qt.AlignCenter)
+        pixmap = get_QPixmap(self.dia.app, 'logo.png')
+        logo.setPixmap(pixmap)
+        return logo
 
     def button_click(self):
+        print('test')
         self.dia.google_service.prepare_credentials()
         self.dia.google_service.build_resource()
         self.dia.switch_current_view(InputGroupBox(self.dia))
+        self.dia.app.hide_on_un_focus = True
 
 
 class InputGroupBox(EphemerisGroupBox):
@@ -51,7 +63,6 @@ class InputGroupBox(EphemerisGroupBox):
         layout.addWidget(self.name_in)
         layout.addWidget(desc_l)
         layout.addWidget(self.desc_in)
-        layout.addWidget(self.bottom_btn)
         self.setLayout(layout)
 
     def button_click(self):
@@ -66,13 +77,10 @@ class TrackingGroupBox(EphemerisGroupBox):
 
         self.start = service_models.EventTime()
         self.elapsed = 0
-        self.e_t_label = QLabel(self._get_string_elapsed())
-        self.e_label = QLabel('&Elapsed time: ')
-        self.e_label.setBuddy(self.e_t_label)
+        self.elapsed_label = self._make_counter_label()
 
-        elapsed_layout = QHBoxLayout()
-        elapsed_layout.addWidget(self.e_label)
-        elapsed_layout.addWidget(self.e_t_label)
+        elapsed_layout = QVBoxLayout()
+        elapsed_layout.addWidget(self.elapsed_label)
 
         self.timer = QTimer()
         self.timer.timeout.connect(self._update_elapsed)
@@ -80,12 +88,18 @@ class TrackingGroupBox(EphemerisGroupBox):
 
         layout = QVBoxLayout()
         layout.addLayout(elapsed_layout)
-        layout.addWidget(self.bottom_btn)
         self.setLayout(layout)
+        self.setStyleSheet('border:none')
+
+    def _make_counter_label(self):
+        label = QLabel(self._get_string_elapsed())
+        label.setFont(QFont('Arial', 12))
+        label.setAlignment(Qt.AlignCenter)
+        return label
 
     def _update_elapsed(self):
         self.elapsed += 1
-        self.e_t_label.setText(self._get_string_elapsed())
+        self.elapsed_label.setText(self._get_string_elapsed())
 
     def _get_string_elapsed(self):
         a = datetime.timedelta(seconds=self.elapsed)

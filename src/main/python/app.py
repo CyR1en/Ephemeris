@@ -1,23 +1,24 @@
 import qdarkstyle
-from PyQt5 import sip
-from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtGui import QCursor
-from PyQt5.QtWidgets import (QDialog, QHBoxLayout, QLabel, QVBoxLayout, QSystemTrayIcon, QMenu, QAction)
+from PyQt5.QtCore import QPoint, Qt
+from PyQt5.QtGui import QCursor, QIcon, QPainter
+from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QAction, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QDialog, \
+    QAbstractButton
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 
 from groups import LoginGroupBox, InputGroupBox, EphemerisGroupBox
 from service import GoogleService
-from util import get_QIcon
+from util import get_QIcon, get_QPixmap
 
 
 class EphemerisApp(QSystemTrayIcon):
     def __init__(self):
+        self.hide_on_un_focus = True
         self.app_ctx = ApplicationContext()
         self.app = self.app_ctx.app
         # apply_stylesheet(self.app, theme='dark_lightgreen.xml')
         self.app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
         self.app.setQuitOnLastWindowClosed(False)
-        self.gallery = EphemerisDialog(self.app_ctx)
+        self.gallery = EphemerisDialog(self)
         super().__init__()
         self.initialize_self()
         menu = QMenu()
@@ -36,6 +37,8 @@ class EphemerisApp(QSystemTrayIcon):
         self.activated.connect(self.system_icon)
 
     def on_focus_change(self, old, new):
+        if not self.hide_on_un_focus:
+            return
         print(old, new)
         if new is None:
             self.gallery.setVisible(False)
@@ -64,38 +67,55 @@ class EphemerisApp(QSystemTrayIcon):
 
 
 class EphemerisDialog(QDialog):
-    def __init__(self, app_ctx, parent=None):
+    def __init__(self, app: EphemerisApp, parent=None):
         super(EphemerisDialog, self).__init__(parent)
-        self.app_ctx = app_ctx
+        self.offset = QPoint()
+        self.ephemeris = app
+        self.app = app.app_ctx
         self._header_title = 'E P H E M E R I S'
-        self.google_service = GoogleService(app_ctx)
+        self.google_service = GoogleService(self.app)
 
         self._main_layout = QVBoxLayout()
         self._main_layout.addLayout(self._create_head())
-
+        self._bottom_btn = QPushButton()
         self._current_view = self._get_start_view()
         self._main_layout.addWidget(self._current_view)
-
+        self._main_layout.addWidget(self._bottom_btn)
         self.setLayout(self._main_layout)
         self._set_flags()
-        self.setMaximumSize(400, 300)
 
     def switch_current_view(self, new: EphemerisGroupBox):
-        self._main_layout.removeWidget(self._current_view)
-        sip.delete(self._current_view)
+        self._main_layout.replaceWidget(self._current_view, new)
+        self._current_view.deleteLater()
         self._current_view = new
-        self._main_layout.addWidget(self._current_view)
+        self._switch_button(new)
+        self.refresh()
+
+    def refresh(self):
+        self.setVisible(False)
         self.setVisible(True)
-        self.raise_()
-        self.activateWindow()
+
+    def _switch_button(self, group):
+        self._bottom_btn.setText(group.button_label)
+        self._bottom_btn.setIcon(QIcon() if group.button_icon is None else group.button_icon)
+        try:
+            self._bottom_btn.disconnect()
+        except():
+            pass
+        self._bottom_btn.clicked.connect(group.button_click)
+        self._bottom_btn.setFocus()
 
     def _get_start_view(self):
-        if not self.google_service.is_logged_in():
-            return LoginGroupBox(self)
+        if not self.google_service.is_token_exists():
+            group = LoginGroupBox(self)
+            self._switch_button(group)
+            return group
         else:
             self.google_service.prepare_credentials()
             self.google_service.build_resource()
-            return InputGroupBox(self)
+            group = InputGroupBox(self)
+            self._switch_button(group)
+            return group
 
     def _set_flags(self):
         self.setWindowFlag(Qt.WindowStaysOnTopHint)
@@ -103,8 +123,43 @@ class EphemerisDialog(QDialog):
         self.setWindowFlag(Qt.Popup)
 
     def _create_head(self):
+        logo = QLabel()
+        logo.setPixmap(get_QPixmap(self.app, 'logo_transparent_tiny.png'))
         label = QLabel(self._header_title)
+        logo.setBuddy(label)
         header = QHBoxLayout()
+        header.addWidget(logo)
         header.addWidget(label)
+        header.addStretch()
+        pin = PicButton(get_QPixmap(self.app, 'pin.png'))
+        pin.clicked.connect(self._on_pin_click)
         header.addStretch(1)
+        header.addWidget(pin)
         return header
+
+    def _on_pin_click(self):
+        self.ephemeris.hide_on_un_focus = not self.ephemeris.hide_on_un_focus
+        print(f'set to {self.ephemeris.hide_on_un_focus}')
+
+    def mousePressEvent(self, event):
+        self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        x = event.globalX()
+        y = event.globalY()
+        x_w = self.offset.x()
+        y_w = self.offset.y()
+        self.move(x - x_w, y - y_w)
+
+
+class PicButton(QAbstractButton):
+    def __init__(self, pixmap, parent=None):
+        super(PicButton, self).__init__(parent)
+        self.pixmap = pixmap
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.drawPixmap(event.rect(), self.pixmap)
+
+    def sizeHint(self):
+        return self.pixmap.size()
