@@ -13,6 +13,12 @@ class EventTime(dict):
         super().__init__(self.__dict__)
 
 
+class Reminders(dict):
+    def __init__(self):
+        self.useDefault = False
+        super().__init__(self.__dict__)
+
+
 class Event(dict):
     def __init__(self,
                  summary='Ephemeris Event',
@@ -48,8 +54,11 @@ class Event(dict):
             self.recurrence = recurrence
         if attendees is not None:
             self.attendees = attendees
+
         if reminders is not None:
             self.reminders = reminders
+        else:
+            self.reminders = Reminders()
         super().__init__(self.__dict__)
 
     def as_json(self):
