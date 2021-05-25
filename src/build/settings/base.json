@@ -1,0 +1,7 @@
+{
+    "app_name": "Ephemeris",
+    "author": "CyR1en, Alvarien",
+    "main_module": "src/main/python/main.py",
+    "version": "0.1.0",
+    "hidden_imports": ["google-api-python-client"]
+}
