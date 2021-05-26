@@ -137,14 +137,14 @@ class EphemerisDialog(QDialog):
         header.addWidget(logo)
         header.addWidget(label)
         header.addStretch()
-        pin = PicButton(get_QPixmap(self.app, 'pin.png'))
-        pin.clicked.connect(self._on_pin_click)
+        self.pin = PinButton(self.app)
+        self.pin.clicked.connect(self._on_pin_click)
         header.addStretch(1)
-        header.addWidget(pin)
+        header.addWidget(self.pin)
         return header
 
     def _on_pin_click(self):
-        self.ephemeris.hide_on_un_focus = not self.ephemeris.hide_on_un_focus
+        self.ephemeris.hide_on_un_focus = self.pin.isChecked()
         print(f'set to {self.ephemeris.hide_on_un_focus}')
 
     def mousePressEvent(self, event):
@@ -158,14 +158,18 @@ class EphemerisDialog(QDialog):
         self.move(x - x_w, y - y_w)
 
 
-class PicButton(QAbstractButton):
-    def __init__(self, pixmap, parent=None):
-        super(PicButton, self).__init__(parent)
-        self.pixmap = pixmap
+class PinButton(QPushButton):
+    def __init__(self, app, parent=None):
+        super(PinButton, self).__init__(parent)
+        self.setCheckable(True)
+        self.setChecked(True)
+        self.pixmap_0 = get_QPixmap(app, 'pin_0.png')
+        self.pixmap_1 = get_QPixmap(app, 'pin_1.png')
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.drawPixmap(event.rect(), self.pixmap)
+        pixmap = self.pixmap_1 if not self.isChecked() else self.pixmap_0
+        painter.drawPixmap(event.rect(), pixmap)
 
     def sizeHint(self):
-        return self.pixmap.size()
+        return self.pixmap_0.size()
