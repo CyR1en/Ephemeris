@@ -125,7 +125,6 @@ class EphemerisDialog(QDialog):
     def _set_flags(self):
         self.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.setWindowFlag(Qt.FramelessWindowHint)
-        self.setWindowFlag(Qt.Popup, True)
 
     def _create_head(self):
         logo = QLabel()
@@ -144,12 +143,7 @@ class EphemerisDialog(QDialog):
 
     def _on_pin_click(self):
         self.ephemeris.is_pinned = self.pin.isChecked()
-        if self.ephemeris.is_pinned:
-            self.setWindowFlags(self.windowFlags() & (~Qt.Popup))
-            self.setWindowFlags(self.windowFlags() | (Qt.WindowStaysOnTopHint))
-        else:
-            self.setWindowFlags(self.windowFlags() | (Qt.Popup))
-            self.setWindowFlags(self.windowFlags() & (~Qt.WindowStaysOnTopHint))
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, self.ephemeris.is_pinned)
         print(f'set to {self.ephemeris.is_pinned}')
         self.show()
 
