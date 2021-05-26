@@ -62,8 +62,16 @@ class EphemerisApp(QSystemTrayIcon):
         if (x + w_size.width()) > s_size.width():
             x = s_size.width() - w_size.width()
         relative_pos.setX(x)
-        relative_pos.setY(cursor_pos.y() - (w_size.height()))
+        y = self._get_y_pos(cursor_pos, w_size, s_size)
+        relative_pos.setY(y)
         return relative_pos
+
+    @staticmethod
+    def _get_y_pos(cursor_pos, w_size, s_size):
+        y = (cursor_pos.y() - (w_size.height()))
+        if cursor_pos.y() < (s_size.width() / 2):
+            y = cursor_pos.y()
+        return y
 
 
 class EphemerisDialog(QDialog):
