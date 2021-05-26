@@ -65,6 +65,7 @@ jobs:
           certificate: ${{ secrets.CERTIFICATE }}
           password: ${{secrets.CERTIFICATE_PASSWORD }}
           certificatesha1: ${{ secrets.CERTIFICATESHA1 }}
+          timestamp: ${{ secrets.TIMESTAMP }}
           folder: target/
           recursive: false
       - name: Upload binaries to release
