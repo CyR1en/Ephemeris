@@ -60,10 +60,11 @@ jobs:
           fbs freeze
           fbs installer
       - name: Code signing
-        uses: DanaBear/code-sign-action@v4
+        uses: DadeSystems/code-sign-action@v5
         with:
           certificate: ${{ secrets.CERTIFICATE }}
           password: ${{secrets.CERTIFICATE_PASSWORD }}
+          certificatename: ${{ secrets.CERTIFICATE_NAME }}
           certificatesha1: ${{ secrets.CERTIFICATESHA1 }}
           folder: target/
           recursive: false
