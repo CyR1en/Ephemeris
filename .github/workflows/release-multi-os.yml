@@ -62,9 +62,9 @@ jobs:
       - name: Code signing
         uses: DanaBear/code-sign-action@v4
         with:
-          certficate: src/sign/windows/certificate.pfx
-          password: 'password123'
-          certificatesha1: '535DED60081B78B13458C4B1B577395EC1BA66A7'
+          certificate: ${{ secrets.CERTIFICATE }}
+          password: ${{secrets.CERTIFICATE_PASSWORD }}
+          certificatesha1: ${{ secrets.CERTIFICATESHA1 }}
           folder: target/
           recursive: true
       - name: Upload binaries to release
