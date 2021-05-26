@@ -11,11 +11,10 @@ from util import get_QIcon, get_QPixmap
 
 
 class EphemerisApp(QSystemTrayIcon):
-    def __init__(self):
+    def __init__(self, app_ctx: ApplicationContext):
         self.hide_on_un_focus = True
-        self.app_ctx = ApplicationContext()
+        self.app_ctx = app_ctx
         self.app = self.app_ctx.app
-        # apply_stylesheet(self.app, theme='dark_lightgreen.xml')
         self.app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
         self.app.setQuitOnLastWindowClosed(False)
         self.gallery = EphemerisDialog(self)
@@ -27,7 +26,6 @@ class EphemerisApp(QSystemTrayIcon):
         quit_a.triggered.connect(self.app.quit)
         self.app.focusChanged.connect(self.on_focus_change)
         self.setContextMenu(menu)
-        self.app.exec_()
 
     def initialize_self(self):
         # Initialize system tray icon
