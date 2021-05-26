@@ -62,7 +62,7 @@ jobs:
       - name: Code signing
         uses: DanaBear/code-sign-action@v4
         with:
-          certficate: src/sign/windows/certificate.pfx
+          certificate: src/sign/windows/certificate.pfx
           password: 'password123'
           certificatesha1: '535DED60081B78B13458C4B1B577395EC1BA66A7'
           folder: target/
