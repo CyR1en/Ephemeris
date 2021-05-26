@@ -5,12 +5,14 @@ from fbs_runtime.application_context.PyQt5 import ApplicationContext
 
 from app import EphemerisApp
 
+NSApplicationActivationPolicyAccessory = 1
+
 
 def hide_rocket():
     if not fbs_runtime.platform.is_mac():
         return
     from AppKit import NSApp
-    NSApp.setActivationPolicy_(1)
+    NSApp.setActivationPolicy_(NSApplicationActivationPolicyAccessory)
 
 
 if __name__ == '__main__':
