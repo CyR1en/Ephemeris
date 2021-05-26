@@ -34,7 +34,7 @@ class LoginGroupBox(EphemerisGroupBox):
     def _make_logo(self):
         logo = QLabel(self)
         logo.setAlignment(Qt.AlignCenter)
-        pixmap = get_QPixmap(self.dia.app, 'logo.png')
+        pixmap = get_QPixmap(self.dia.app, 'logo_win.png')
         logo.setPixmap(pixmap)
         return logo
 
@@ -43,7 +43,7 @@ class LoginGroupBox(EphemerisGroupBox):
         self.dia.google_service.prepare_credentials()
         self.dia.google_service.build_resource()
         self.dia.switch_current_view(InputGroupBox(self.dia))
-        self.dia.app.hide_on_un_focus = True
+        self.dia.app.is_pinned = True
 
 
 class InputGroupBox(EphemerisGroupBox):

@@ -1,18 +1,17 @@
 import qdarkstyle
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QCursor, QIcon, QPainter
-from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QAction, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QDialog, \
-    QAbstractButton
+from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QAction, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QDialog
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 
 from groups import LoginGroupBox, InputGroupBox, EphemerisGroupBox
 from service import GoogleService
-from util import get_QIcon, get_QPixmap
+from util import get_QPixmap, app_logo
 
 
 class EphemerisApp(QSystemTrayIcon):
     def __init__(self, app_ctx: ApplicationContext):
-        self.hide_on_un_focus = True
+        self.is_pinned = False
         self.app_ctx = app_ctx
         self.app = self.app_ctx.app
         self.app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
@@ -29,13 +28,13 @@ class EphemerisApp(QSystemTrayIcon):
 
     def initialize_self(self):
         # Initialize system tray icon
-        icon = get_QIcon(self.app_ctx, 'logo.png')
+        icon = app_logo(self.app_ctx)
         self.setIcon(icon)
         self.setVisible(True)
         self.activated.connect(self.system_icon)
 
     def on_focus_change(self, old, new):
-        if not self.hide_on_un_focus:
+        if self.is_pinned:
             return
         print(old, new)
         if new is None:
@@ -126,7 +125,6 @@ class EphemerisDialog(QDialog):
     def _set_flags(self):
         self.setWindowFlag(Qt.WindowStaysOnTopHint)
         self.setWindowFlag(Qt.FramelessWindowHint)
-        self.setWindowFlag(Qt.Popup)
 
     def _create_head(self):
         logo = QLabel()
@@ -144,8 +142,10 @@ class EphemerisDialog(QDialog):
         return header
 
     def _on_pin_click(self):
-        self.ephemeris.hide_on_un_focus = self.pin.isChecked()
-        print(f'set to {self.ephemeris.hide_on_un_focus}')
+        self.ephemeris.is_pinned = self.pin.isChecked()
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, self.ephemeris.is_pinned)
+        print(f'set to {self.ephemeris.is_pinned}')
+        self.show()
 
     def mousePressEvent(self, event):
         self.offset = event.pos()
@@ -162,13 +162,13 @@ class PinButton(QPushButton):
     def __init__(self, app, parent=None):
         super(PinButton, self).__init__(parent)
         self.setCheckable(True)
-        self.setChecked(True)
+        self.setChecked(False)
         self.pixmap_0 = get_QPixmap(app, 'pin_0.png')
         self.pixmap_1 = get_QPixmap(app, 'pin_1.png')
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        pixmap = self.pixmap_1 if not self.isChecked() else self.pixmap_0
+        pixmap = self.pixmap_1 if self.isChecked() else self.pixmap_0
         painter.drawPixmap(event.rect(), pixmap)
 
     def sizeHint(self):

@@ -20,6 +20,15 @@ def token_dest():
     return os.path.join(get_data_dir(), 'token.json')
 
 
+def app_logo(app_ctx):
+    logo = QIcon()
+    if sys.platform == "win32":
+        logo = get_QIcon(app_ctx, 'logo_win.png')
+    elif sys.platform == "darwin":
+        logo = get_QIcon(app_ctx, 'logo_mac.png')
+    return logo
+
+
 def get_data_dir():
     home = os.path.expanduser("~")
     if sys.platform == "win32":
