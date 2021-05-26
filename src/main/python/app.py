@@ -16,7 +16,7 @@ class EphemerisApp(QSystemTrayIcon):
         self.app = self.app_ctx.app
         self.app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
         self.app.setQuitOnLastWindowClosed(False)
-        self.gallery = EphemerisDialog(self)
+        self.dialog = EphemerisDialog(self)
         super().__init__()
         self.initialize_self()
         menu = QMenu()
@@ -38,22 +38,22 @@ class EphemerisApp(QSystemTrayIcon):
             return
         print(old, new)
         if new is None:
-            self.gallery.setVisible(False)
+            self.dialog.setVisible(False)
 
     def system_icon(self, reason):
         if reason != self.DoubleClick:
             return
         print('Clicked')
         print(QCursor.pos())
-        self.gallery.setVisible(True)
-        self.gallery.raise_()
-        self.gallery.activateWindow()
-        self.gallery.move(self._get_relative_pos())
+        self.dialog.setVisible(True)
+        self.dialog.raise_()
+        self.dialog.activateWindow()
+        self.dialog.move(self._get_relative_pos())
 
     def _get_relative_pos(self):
         cursor_pos = QCursor.pos()
         relative_pos = QPoint()
-        w_size = self.gallery.size()
+        w_size = self.dialog.size()
         s_size = self.app.primaryScreen().size()
         x = cursor_pos.x() - ((w_size.width()) / 2)
         if (x + w_size.width()) > s_size.width():
@@ -66,7 +66,7 @@ class EphemerisApp(QSystemTrayIcon):
     @staticmethod
     def _get_y_pos(cursor_pos, w_size, s_size):
         y = (cursor_pos.y() - (w_size.height()))
-        if cursor_pos.y() < (s_size.width() / 2):
+        if cursor_pos.y() > (s_size.width() / 2):
             y = cursor_pos.y()
         return y
 
@@ -95,6 +95,7 @@ class EphemerisDialog(QDialog):
         self._current_view = new
         self._switch_button(new)
         self.refresh()
+        self.raise_()
 
     def refresh(self):
         self.setVisible(False)
