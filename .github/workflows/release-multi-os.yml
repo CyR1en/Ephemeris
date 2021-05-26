@@ -65,8 +65,8 @@ jobs:
           certificate: ${{ secrets.CERTIFICATE }}
           password: ${{secrets.CERTIFICATE_PASSWORD }}
           certificatesha1: ${{ secrets.CERTIFICATESHA1 }}
-          folder: target/EphemerisSetup.exe
-          recursive: true
+          folder: target/
+          recursive: false
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
