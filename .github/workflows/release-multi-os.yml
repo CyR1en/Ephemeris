@@ -64,7 +64,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: cache/signed/EphemerisSetup.exe
+          file: target/EphemerisSetup.exe
           asset_name: EphemerisSetup.exe
           tag: ${{ github.ref }}
           overwrite: true
