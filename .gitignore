@@ -10,7 +10,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/settings/secret.json
 develop-eggs/
 dist/
 downloads/
