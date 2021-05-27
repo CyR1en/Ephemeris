@@ -66,7 +66,7 @@ jobs:
           password: ${{secrets.CERTIFICATE_PASSWORD }}
           certificatename: ${{ secrets.CERTIFICATE_NAME }}
           certificatesha1: ${{ secrets.CERTIFICATESHA1 }}
-          timestampUrl: ${{ secrets.TIMESTAMP_URL }}
+          timestampUrl: 'http://ts.ssl.com'
           folder: target/
           recursive: false
       - name: Upload binaries to release
