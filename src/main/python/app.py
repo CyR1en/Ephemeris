@@ -19,12 +19,12 @@ class EphemerisApp(QSystemTrayIcon):
         self.dialog = EphemerisDialog(self)
         super().__init__()
         self.initialize_self()
-        menu = QMenu()
-        quit_a = QAction("Quit")
-        menu.addAction(quit_a)
-        quit_a.triggered.connect(self.app.quit)
+        self.menu = QMenu()
+        self.quit_a = QAction("Quit")
+        self.menu.addAction(self.quit_a)
+        self.quit_a.triggered.connect(self.app.quit)
         self.app.focusChanged.connect(self.on_focus_change)
-        self.setContextMenu(menu)
+        self.setContextMenu(self.menu)
 
     def initialize_self(self):
         # Initialize system tray icon
