@@ -60,12 +60,13 @@ jobs:
           fbs freeze
           fbs installer
       - name: Code signing
-        uses: DadeSystems/code-sign-action@v5
+        uses: CyR1en/code-sign-action@v6
         with:
           certificate: ${{ secrets.CERTIFICATE }}
           password: ${{secrets.CERTIFICATE_PASSWORD }}
+          certificatename: ${{ secrets.CERTIFICATE_NAME }}
           certificatesha1: ${{ secrets.CERTIFICATESHA1 }}
-          timestampUrl: 'http://timestamp.digicert.com?alg=sha1'
+          timestampUrl: ${{ secrets.TIMESTAMP_URL }}
           folder: target/
           recursive: false
       - name: Upload binaries to release
