@@ -64,7 +64,6 @@ jobs:
         with:
           certificate: ${{ secrets.CERTIFICATE }}
           password: ${{secrets.CERTIFICATE_PASSWORD }}
-          certificatename: ${{ secrets.CERTIFICATE_NAME }}
           certificatesha1: ${{ secrets.CERTIFICATESHA1 }}
           timestampUrl: 'http://ts.ssl.com'
           folder: target/
