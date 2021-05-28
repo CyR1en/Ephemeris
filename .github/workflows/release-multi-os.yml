@@ -40,7 +40,7 @@ jobs:
 
   build-windows:
     name: Upload Release Asset Windows
-    runs-on: windows-latest
+    runs-on: [self-hosted, Windows, X64]
     strategy:
       matrix:
         python-version: [3.6]
