@@ -45,9 +45,9 @@ class EphemerisApp(QSystemTrayIcon):
             return
         print('Clicked')
         print(QCursor.pos())
-        self.dialog.setVisible(True)
         self.dialog.raise_()
         self.dialog.activateWindow()
+        self.dialog.setVisible(True)
         self.dialog.move(self._get_relative_pos())
 
     def _get_relative_pos(self):
@@ -95,7 +95,8 @@ class EphemerisDialog(QDialog):
         self._current_view = new
         self._switch_button(new)
         self.refresh()
-        self.raise_()
+        self.dialog.raise_()
+        self.dialog.activateWindow()
 
     def refresh(self):
         self.setVisible(False)
@@ -144,7 +145,6 @@ class EphemerisDialog(QDialog):
 
     def _on_pin_click(self):
         self.ephemeris.is_pinned = self.pin.isChecked()
-        self.setWindowFlag(Qt.WindowStaysOnTopHint, self.ephemeris.is_pinned)
         print(f'set to {self.ephemeris.is_pinned}')
         self.show()
 
