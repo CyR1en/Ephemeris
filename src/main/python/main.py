@@ -17,6 +17,6 @@ def hide_rocket():
 
 if __name__ == '__main__':
     app_ctx = ApplicationContext()
-    hide_rocket()
+    #hide_rocket()
     ephemeris = EphemerisApp(app_ctx)
     sys.exit(app_ctx.app.exec_())

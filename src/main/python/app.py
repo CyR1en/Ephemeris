@@ -1,11 +1,12 @@
 import qdarkstyle
 from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtGui import QCursor, QIcon, QPainter
+from PyQt5.QtGui import QCursor, QIcon
 from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QAction, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QDialog
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 
 from groups import LoginGroupBox, InputGroupBox, EphemerisGroupBox
 from service import GoogleService
+from widgets import PicButton
 from util import get_QPixmap, app_logo
 
 
@@ -19,12 +20,7 @@ class EphemerisApp(QSystemTrayIcon):
         self.dialog = EphemerisDialog(self)
         super().__init__()
         self.initialize_self()
-        self.menu = QMenu()
-        self.quit_a = QAction("Quit")
-        self.menu.addAction(self.quit_a)
-        self.quit_a.triggered.connect(self.app.quit)
         self.app.focusChanged.connect(self.on_focus_change)
-        self.setContextMenu(self.menu)
 
     def initialize_self(self):
         # Initialize system tray icon
@@ -43,8 +39,6 @@ class EphemerisApp(QSystemTrayIcon):
     def system_icon(self, reason):
         if reason != self.DoubleClick:
             return
-        print('Clicked')
-        print(QCursor.pos())
         self.dialog.raise_()
         self.dialog.activateWindow()
         self.dialog.setVisible(True)
@@ -87,6 +81,7 @@ class EphemerisDialog(QDialog):
         self._main_layout.addWidget(self._current_view)
         self._main_layout.addWidget(self._bottom_btn)
         self.setLayout(self._main_layout)
+        self.setFixedWidth(300)
         self._set_flags()
 
     def switch_current_view(self, new: EphemerisGroupBox):
@@ -95,8 +90,8 @@ class EphemerisDialog(QDialog):
         self._current_view = new
         self._switch_button(new)
         self.refresh()
-        self.dialog.raise_()
-        self.dialog.activateWindow()
+        self.raise_()
+        self.activateWindow()
 
     def refresh(self):
         self.setVisible(False)
@@ -133,18 +128,35 @@ class EphemerisDialog(QDialog):
         logo.setPixmap(get_QPixmap(self.app, 'logo_transparent_tiny.png'))
         label = QLabel(self._header_title)
         logo.setBuddy(label)
+
         header = QHBoxLayout()
+        self._setup_header_widgets()
         header.addWidget(logo)
         header.addWidget(label)
-        header.addStretch()
-        self.pin = PinButton(self.app)
-        self.pin.clicked.connect(self._on_pin_click)
-        header.addStretch(1)
-        header.addWidget(self.pin)
+        header.addStretch(2)
+        header.addWidget(self.cog)
         return header
 
+    def _setup_header_widgets(self):
+        self.cog = PicButton(self.app, 'cog.png')
+        self.cog.setContextMenuPolicy(Qt.CustomContextMenu)
+
+        self.menu = QMenu()
+        self.quit_a = QAction("Quit")
+        self.pin_a = QAction("Pin")
+        self.menu.addAction(self.pin_a)
+        self.menu.addSeparator()
+        self.menu.addAction(self.quit_a)
+        self.pin_a.triggered.connect(self._on_pin_click)
+        self.quit_a.triggered.connect(self.app.app.quit)
+
+        self.cog.setMenu(self.menu)
+
+    def _on_cog_click(self, point):
+        self.menu.exec_(self.cog.mapToGlobal(point))
+
     def _on_pin_click(self):
-        self.ephemeris.is_pinned = self.pin.isChecked()
+        self.ephemeris.is_pinned = not self.ephemeris.is_pinned
         print(f'set to {self.ephemeris.is_pinned}')
         self.show()
 
@@ -157,20 +169,3 @@ class EphemerisDialog(QDialog):
         x_w = self.offset.x()
         y_w = self.offset.y()
         self.move(x - x_w, y - y_w)
-
-
-class PinButton(QPushButton):
-    def __init__(self, app, parent=None):
-        super(PinButton, self).__init__(parent)
-        self.setCheckable(True)
-        self.setChecked(False)
-        self.pixmap_0 = get_QPixmap(app, 'pin_0.png')
-        self.pixmap_1 = get_QPixmap(app, 'pin_1.png')
-
-    def paintEvent(self, event):
-        painter = QPainter(self)
-        pixmap = self.pixmap_1 if self.isChecked() else self.pixmap_0
-        painter.drawPixmap(event.rect(), pixmap)
-
-    def sizeHint(self):
-        return self.pixmap_0.size()
