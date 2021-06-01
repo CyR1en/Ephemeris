@@ -157,6 +157,8 @@ class EphemerisDialog(QDialog):
 
     def _on_pin_click(self):
         self.ephemeris.is_pinned = not self.ephemeris.is_pinned
+        text = 'Unpin' if self.ephemeris.is_pinned else 'Pin'
+        self.pin_a.setText(text)
         print(f'set to {self.ephemeris.is_pinned}')
         self.show()
 
