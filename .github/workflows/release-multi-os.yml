@@ -10,8 +10,10 @@ jobs:
   build-macos:
     name: Upload Release Asset macOS
     runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
     env:
-        PYTHON_VERSION: 3.9.2
         MACOSX_DEPLOYMENT_TARGET: 10.9
     steps:
       - name: Checkout code
