@@ -33,7 +33,7 @@ class EphemerisApp(QSystemTrayIcon):
         if self.is_pinned:
             return
         print(old, new)
-        if new is None:
+        if new is None and self.dialog is not None:
             self.dialog.setVisible(False)
 
     def system_icon(self, reason):
