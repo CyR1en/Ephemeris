@@ -59,14 +59,16 @@ jobs:
           fbs freeze
           fbs installer
       - name: Code signing
-        uses: CyR1en/code-sign-action@v6
-        with:
-          certificate: ${{ secrets.CERTIFICATE }}
-          password: ${{secrets.CERTIFICATE_PASSWORD }}
-          certificatesha1: ${{ secrets.CERTIFICATESHA1 }}
-          timestampUrl: 'http://ts.ssl.com'
-          folder: target/
-          recursive: false
+        run: |
+          fbs sign_installer
+       #uses: CyR1en/code-sign-action@v6
+       #with:
+         #certificate: ${{ secrets.CERTIFICATE }}
+         #password: ${{secrets.CERTIFICATE_PASSWORD }}
+         #certificatesha1: ${{ secrets.CERTIFICATESHA1 }}
+         #timestampUrl: 'http://ts.ssl.com'
+         #folder: target/
+         #recursive: false
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
