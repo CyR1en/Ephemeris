@@ -81,7 +81,7 @@ class EphemerisDialog(QDialog):
         self._main_layout.addWidget(self._current_view)
         self._main_layout.addWidget(self._bottom_btn)
         self.setLayout(self._main_layout)
-        self.setFixedWidth(300)
+        self.setFixedWidth(230)
         self._set_flags()
 
     def switch_current_view(self, new: EphemerisGroupBox):
