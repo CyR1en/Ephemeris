@@ -10,9 +10,9 @@ jobs:
   build-macos:
     name: Upload Release Asset macOS
     runs-on: macos-latest
-    strategy:
-      matrix:
-        python-version: [3.6]
+    env:
+        PYTHON_VERSION: 3.9.2
+        MACOSX_DEPLOYMENT_TARGET: 10.9
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -22,9 +22,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install python dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -U -r requirements/base.txt
-          pip install -U -r requirements/mac.txt
+          python3 -m pip install --upgrade pip
+          pip3 install -U -r requirements/base.txt -r requirements/mac.txt
       - name: Run fbs
         run: |
           fbs freeze
