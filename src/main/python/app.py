@@ -60,7 +60,7 @@ class EphemerisApp(QSystemTrayIcon):
     @staticmethod
     def _get_y_pos(cursor_pos, w_size, s_size):
         y = (cursor_pos.y() - (w_size.height()))
-        if cursor_pos.y() > (s_size.width() / 2):
+        if cursor_pos.y() < (s_size.height() / 2):
             y = cursor_pos.y()
         return y
 
