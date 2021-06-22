@@ -39,10 +39,10 @@ class EphemerisApp(QSystemTrayIcon):
     def system_icon(self, reason):
         if reason != self.DoubleClick:
             return
-        self.dialog.raise_()
-        self.dialog.activateWindow()
         self.dialog.setVisible(True)
         self.dialog.move(self._get_relative_pos())
+        self.dialog.activateWindow()
+        self.dialog.raise_()
 
     def _get_relative_pos(self):
         cursor_pos = QCursor.pos()
