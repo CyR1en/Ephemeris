@@ -65,14 +65,6 @@ class ConfigNode(Enum):
     This contains a tuple. index[0] is the key of the configuration
     and index[2] is the default value of the key when the fil is generated.
     """
-    TOKEN = ("bot_token", "replace this with your bot's token")
-    PREFIX = ("command_prefix", "('elvis', 'elvis, ')")
-    R_C_ID = ("reddit_client_id", "Replace with client ID")
-    R_C_SECRET = ("reddit_client_secret", "Replace with client secret")
-    R_UNAME = ("reddit_user", "enter username")
-    R_PASS = ("reddit_pass", "enter pass")
-    BLACKLIST = ("blacklist", "[]")
-
     def get_key(self):
         return self.value[0]
 
