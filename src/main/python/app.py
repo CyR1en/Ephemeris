@@ -1,6 +1,7 @@
 import qdarkstyle
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QCursor, QIcon
+from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QSystemTrayIcon, QMenu, QAction, QVBoxLayout, QPushButton, QLabel, QHBoxLayout, QDialog
 from fbs_runtime.application_context.PyQt5 import ApplicationContext
 
@@ -10,17 +11,28 @@ from widgets import PicButton
 from util import get_QPixmap, app_logo
 
 
+def action():
+    print('')
+
 class EphemerisApp(QSystemTrayIcon):
     def __init__(self, app_ctx: ApplicationContext):
         self.is_pinned = False
         self.app_ctx = app_ctx
         self.app = self.app_ctx.app
+
         self.app.setStyleSheet(qdarkstyle.load_stylesheet(qt_api='pyqt5'))
         self.app.setQuitOnLastWindowClosed(False)
         self.dialog = EphemerisDialog(self)
         super().__init__()
         self.initialize_self()
         self.app.focusChanged.connect(self.on_focus_change)
+        self.show()
+
+        menu = QMenu(parent=None)
+        menu.aboutToShow.connect(action)
+        self.setContextMenu(menu)
+        self.dialog.bottom_btn.setFocus()
+
 
     def initialize_self(self):
         # Initialize system tray icon
@@ -37,7 +49,7 @@ class EphemerisApp(QSystemTrayIcon):
             self.dialog.setVisible(False)
 
     def system_icon(self, reason):
-        if reason != self.DoubleClick:
+        if reason != self.Trigger:
             return
         self.dialog.setVisible(True)
         self.dialog.move(self._get_relative_pos())
@@ -45,23 +57,26 @@ class EphemerisApp(QSystemTrayIcon):
         self.dialog.raise_()
 
     def _get_relative_pos(self):
-        cursor_pos = QCursor.pos()
+        cursor_pos = QCursor.pos(self.app.primaryScreen())
+        print(f'Cursor Pos: {cursor_pos}')
         relative_pos = QPoint()
         w_size = self.dialog.size()
-        s_size = self.app.primaryScreen().size()
+        s_size = self.app.desktop().size()
+        print(f'Screen size: {s_size}')
         x = cursor_pos.x() - ((w_size.width()) / 2)
         if (x + w_size.width()) > s_size.width():
             x = s_size.width() - w_size.width()
         relative_pos.setX(x)
         y = self._get_y_pos(cursor_pos, w_size, s_size)
         relative_pos.setY(y)
+        print(f'Relative Pos: {relative_pos}')
         return relative_pos
 
     @staticmethod
     def _get_y_pos(cursor_pos, w_size, s_size):
         y = (cursor_pos.y() - (w_size.height()))
         if cursor_pos.y() < (s_size.height() / 2):
-            y = cursor_pos.y()
+            y = cursor_pos.y() + s_size.height() * 0.007
         return y
 
 
@@ -76,10 +91,10 @@ class EphemerisDialog(QDialog):
 
         self._main_layout = QVBoxLayout()
         self._main_layout.addLayout(self._create_head())
-        self._bottom_btn = QPushButton()
+        self.bottom_btn = QPushButton()
         self._current_view = self._get_start_view()
         self._main_layout.addWidget(self._current_view)
-        self._main_layout.addWidget(self._bottom_btn)
+        self._main_layout.addWidget(self.bottom_btn)
         self.setLayout(self._main_layout)
         self.setFixedWidth(230)
         self._set_flags()
@@ -98,14 +113,14 @@ class EphemerisDialog(QDialog):
         self.setVisible(True)
 
     def _switch_button(self, group):
-        self._bottom_btn.setText(group.button_label)
-        self._bottom_btn.setIcon(QIcon() if group.button_icon is None else group.button_icon)
+        self.bottom_btn.setText(group.button_label)
+        self.bottom_btn.setIcon(QIcon() if group.button_icon is None else group.button_icon)
         try:
-            self._bottom_btn.disconnect()
+            self.bottom_btn.disconnect()
         except():
             pass
-        self._bottom_btn.clicked.connect(group.button_click)
-        self._bottom_btn.setFocus()
+        self.bottom_btn.clicked.connect(group.button_click)
+        self.bottom_btn.setFocus()
 
     def _get_start_view(self):
         if not self.google_service.is_token_exists():

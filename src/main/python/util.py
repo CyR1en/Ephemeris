@@ -26,6 +26,8 @@ def app_logo(app_ctx):
         logo = get_QIcon(app_ctx, 'logo_win.png')
     elif sys.platform == "darwin":
         logo = get_QIcon(app_ctx, 'logo_mac.png')
+    elif sys.platform == "linux":
+        logo = get_QIcon(app_ctx, 'logo_mac.png')
     return logo
 
 
