@@ -104,7 +104,7 @@ jobs:
           bundler-cache: true
       - name: Install linux installer dependency
         run: |
-          apt-get install squashfs-tools
+          sudo apt-get install -y squashfs-tools
           gem install fpm
       - name: Run fbs
         run: |
